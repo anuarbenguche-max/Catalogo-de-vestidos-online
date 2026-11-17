@@ -397,6 +397,23 @@
     let vestidosData = [];
     let categoriasUnicas = [];
 
+    // Función para limpiar links de Imgur automáticamente
+    function cleanImgurUrl(url) {
+        if (!url) return '';
+        let cleanUrl = url.trim();
+        
+        // Si el enlace es de Imgur pero no termina en formato de imagen
+        if (cleanUrl.includes('imgur.com') && !cleanUrl.match(/\.(jpeg|jpg|gif|png)$/i)) {
+            // Extraer el código final (ej. de imgur.com/a/xa0I6bZ saca xa0I6bZ)
+            const idMatch = cleanUrl.match(/imgur\.com\/(?:a\/|gallery\/)?([a-zA-Z0-9]+)/);
+            if (idMatch && idMatch[1]) {
+                // Forzar el enlace directo con i.imgur.com y .jpeg
+                return `https://i.imgur.com/${idMatch[1]}.jpeg`;
+            }
+        }
+        return cleanUrl;
+    }
+
     async function cargarDatos() {
         try {
             const response = await fetch(CSV_URL);
@@ -424,6 +441,9 @@
                 const categoria = cols[2] ? cols[2].trim() : 'Sin Categoría';
                 categoriasUnicas.add(categoria);
 
+                // Pasamos la URL por nuestro limpiador automático
+                const fixedUrl = cleanImgurUrl(cols[7]);
+
                 vestidosData.push({
                     id: cols[0],
                     nombre: cols[1],
@@ -432,7 +452,7 @@
                     precio: cols[4] || 'Consultar',
                     deposito: cols[5] || 'Consultar',
                     descripcion: cols[6] || '',
-                    url: cols[7]
+                    url: fixedUrl
                 });
             }
         }
