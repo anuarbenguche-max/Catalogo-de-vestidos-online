@@ -41,7 +41,7 @@
             width: 92%;
             max-width: 1200px;
             margin: 30px auto;
-            text-align: center; /* Para centrar el mensaje de carga */
+            text-align: center;
         }
 
         /* Barra de filtros por categoría */
@@ -64,7 +64,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.25s ease;
-            display: none; /* Se ocultan hasta que haya categorías cargadas */
+            display: none;
         }
 
         .filter-btn:hover,
@@ -167,15 +167,6 @@
             font-size: 0.75em;
             z-index: 3;
             pointer-events: none;
-        }
-
-        .fallback-text {
-            color: #d88ca8;
-            font-weight: 500;
-            font-size: 1.1em;
-            padding: 20px;
-            text-align: center;
-            z-index: 1;
         }
 
         .item-info {
@@ -373,18 +364,15 @@
 </header>
 
 <div class="container">
-    <!-- Botones para filtrar por categoría. Se llenarán dinámicamente -->
     <div class="filter-bar" id="filter-bar">
         <button class="filter-btn active" id="btn-todas" onclick="filtrarCategoria('Todas', this)" style="display: none;">Todas las categorías</button>
     </div>
 
-    <!-- Contenedor del catálogo -->
     <div id="catalog-content">
         <p class="loading-text" id="loading-msg">Cargando colección de vestidos...</p>
     </div>
 </div>
 
-<!-- Visor modal -->
 <div id="lightbox" class="lightbox" onclick="cerrarLightbox(event)">
     <span class="lightbox-close" onclick="cerrarLightbox(event)">&times;</span>
     <img id="lightbox-img" class="lightbox-img" src="" alt="">
@@ -403,22 +391,13 @@
 </footer>
 
 <script>
-    // === ⚠️ IMPORTANTE: REEMPLAZA ESTE ENLACE ⚠️ ===
-    // Pega aquí el enlace .csv público que sacaste de Archivo > Compartir > Publicar en la Web en Google Sheets
-    const CSV_URL = 'PEGA_AQUI_TU_ENLACE_CSV_PUBLICO'; 
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSR8LUiz6js9SmZ7gYMUOCTBPubAjDr-PUX1FpH6jbFY9I7DSR_cnRo6zc64T0MhItQb0TokMIMl4jY/pub?gid=0&single=true&output=csv'; 
     
     const whatsappNumbers = ['50488444569', '50496113944'];
     let vestidosData = [];
     let categoriasUnicas = [];
 
-    // Función para leer y procesar el CSV
     async function cargarDatos() {
-        if(CSV_URL === 'PEGA_AQUI_TU_ENLACE_CSV_PUBLICO'){
-            document.getElementById('loading-msg').innerHTML = "⚠️ Falta configurar el enlace del Google Sheet en el código HTML.";
-            document.getElementById('loading-msg').style.color = 'red';
-            return;
-        }
-
         try {
             const response = await fetch(CSV_URL);
             const data = await response.text();
@@ -429,27 +408,18 @@
         }
     }
 
-    // Convertir el texto CSV en un arreglo de objetos JavaScript
     function procesarCSV(csvText) {
-        // Separar por saltos de línea y manejar comillas dobles (formato estándar CSV)
         const rows = csvText.split(/\r?\n/);
-        if (rows.length < 2) return; // Si solo hay encabezados o está vacío
-
-        // Obtener encabezados (limpiando espacios)
-        const headersLine = parseCSVLine(rows[0]);
+        if (rows.length < 2) return;
         
         vestidosData = [];
         categoriasUnicas = new Set();
 
         for (let i = 1; i < rows.length; i++) {
-            if (!rows[i].trim()) continue; // saltar filas vacías
+            if (!rows[i].trim()) continue;
             
             const cols = parseCSVLine(rows[i]);
             
-            // Asignar según el orden de las columnas que creaste en el Google Sheet:
-            // 0: ID, 1: Nombre, 2: Categoría, 3: Talla, 4: Precio, 5: Depósito, 6: Descripción, 7: URL
-            
-            // Verificar si hay suficientes datos (al menos un nombre o URL)
             if (cols.length >= 7 && cols[1] && cols[7]) {
                 const categoria = cols[2] ? cols[2].trim() : 'Sin Categoría';
                 categoriasUnicas.add(categoria);
@@ -467,7 +437,6 @@
             }
         }
 
-        // Convertir el Set a Array para crear los botones
         categoriasUnicas = Array.from(categoriasUnicas).sort();
         
         construirFiltros();
@@ -475,7 +444,6 @@
         renderCatalogo('Todas');
     }
 
-    // Función auxiliar para leer CSV manejando comillas y comas internas
     function parseCSVLine(text) {
         const re_value = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\s\S][^'\\]*)*)'|"([^"\\]*(?:\\[\s\S][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g;
         let a = [];
@@ -489,11 +457,10 @@
         return a;
     }
 
-    // Crear botones de categoría dinámicamente según lo que haya en el Excel
     function construirFiltros() {
         const filterBar = document.getElementById('filter-bar');
         const btnTodas = document.getElementById('btn-todas');
-        btnTodas.style.display = 'inline-block'; // Mostrar el botón "Todas"
+        btnTodas.style.display = 'inline-block'; 
 
         categoriasUnicas.forEach(cat => {
             if(cat !== 'Sin Categoría'){
@@ -538,7 +505,6 @@
                 card.className = 'item';
                 const nombreSeguro = vestido.nombre.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                 
-                // Formatear textos opcionales
                 const descHtml = vestido.descripcion ? `<p class="item-desc">${vestido.descripcion}</p>` : '';
                 
                 card.innerHTML = `
@@ -613,7 +579,6 @@
         window.open(`https://wa.me/${numeroElegido}?text=${mensaje}`, '_blank');
     }
 
-    // Iniciar la carga al abrir la página
     window.onload = cargarDatos;
 </script>
 
