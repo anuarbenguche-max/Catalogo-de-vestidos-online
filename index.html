@@ -119,6 +119,7 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            cursor: zoom-in;
         }
 
         .item img {
@@ -149,6 +150,20 @@
             font-weight: 500;
             z-index: 3;
             letter-spacing: 0.5px;
+            pointer-events: none;
+        }
+
+        .zoom-hint {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.55);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            z-index: 3;
+            pointer-events: none;
         }
 
         .fallback-text {
@@ -190,6 +205,68 @@
         .btn-consultar:hover {
             background-color: #1ebe5d;
             transform: scale(1.03);
+        }
+
+        /* Visor de imagen en pantalla completa (Lightbox) */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.88);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 18px;
+            right: 25px;
+            color: white;
+            font-size: 2.5em;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            z-index: 1001;
+            background: rgba(255, 255, 255, 0.15);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox-img {
+            max-width: 92%;
+            max-height: 75vh;
+            border-radius: 10px;
+            object-fit: contain;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        }
+
+        .lightbox-caption {
+            color: white;
+            margin: 15px 0 12px;
+            font-size: 1.15em;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .lightbox .btn-consultar {
+            width: auto;
+            min-width: 200px;
+            padding: 12px 30px;
         }
 
         footer {
@@ -251,7 +328,6 @@
 </header>
 
 <div class="container">
-    <!-- Botones para filtrar por categoría -->
     <div class="filter-bar">
         <button class="filter-btn active" onclick="filtrarCategoria('Todas', this)">Todas las categorías</button>
         <button class="filter-btn" onclick="filtrarCategoria('Noche y Gala', this)">Noche y Gala</button>
@@ -260,8 +336,15 @@
         <button class="filter-btn" onclick="filtrarCategoria('Maternidad', this)">Maternidad</button>
     </div>
 
-    <!-- Contenedor donde se agrupan las categorías -->
     <div id="catalog-content"></div>
+</div>
+
+<!-- Visor modal para ver el vestido completo al hacer clic -->
+<div id="lightbox" class="lightbox" onclick="cerrarLightbox(event)">
+    <span class="lightbox-close" onclick="cerrarLightbox(event)">&times;</span>
+    <img id="lightbox-img" class="lightbox-img" src="" alt="">
+    <p id="lightbox-caption" class="lightbox-caption"></p>
+    <button id="lightbox-btn" class="btn-consultar">📲 Consultar</button>
 </div>
 
 <footer>
@@ -361,16 +444,18 @@
             vestidosCat.forEach(vestido => {
                 const card = document.createElement('div');
                 card.className = 'item';
+                const nombreSeguro = vestido.nombre.replace(/'/g, "\\'");
                 card.innerHTML = `
                     <div>
-                        <div class="img-container">
+                        <div class="img-container" onclick="abrirLightbox(this, ${vestido.id}, '${nombreSeguro}')">
                             <span class="category-badge">${vestido.categoria}</span>
+                            <span class="zoom-hint">🔍 Ver completo</span>
                             <span class="fallback-text">${vestido.nombre}</span>
                             <img src="images/${vestido.id}.jpeg" alt="${vestido.nombre}" onerror="handleImgError(this, ${vestido.id})">
                         </div>
                         <p>${vestido.nombre}</p>
                     </div>
-                    <button class="btn-consultar" onclick="consultarVestido(${vestido.id}, '${vestido.nombre.replace(/'/g, "\\'")}')">
+                    <button class="btn-consultar" onclick="consultarVestido(${vestido.id}, '${nombreSeguro}')">
                         📲 Consultar
                     </button>
                 `;
@@ -388,6 +473,39 @@
         renderCatalogo(categoria);
     }
 
+    function abrirLightbox(container, id, nombre) {
+        const imgElement = container.querySelector('img');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxCaption = document.getElementById('lightbox-caption');
+        const lightboxBtn = document.getElementById('lightbox-btn');
+
+        lightboxImg.src = imgElement.src;
+        lightboxImg.alt = nombre;
+        lightboxCaption.textContent = nombre;
+        lightboxBtn.onclick = function(e) {
+            e.stopPropagation();
+            consultarVestido(id, nombre);
+        };
+
+        lightbox.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarLightbox(event) {
+        if (event.target.id === 'lightbox' || event.target.classList.contains('lightbox-close')) {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.getElementById('lightbox').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
+
     function consultarVestido(id, nombre) {
         const randomIndex = Math.floor(Math.random() * whatsappNumbers.length);
         const numeroElegido = whatsappNumbers[randomIndex];
@@ -397,7 +515,6 @@
         window.open(`https://wa.me/${numeroElegido}?text=${mensaje}`, '_blank');
     }
 
-    // Mostrar todo el catálogo ordenado por categoría al iniciar
     renderCatalogo('Todas');
 </script>
 
