@@ -404,11 +404,20 @@
         
         // Si el enlace es de Imgur pero no termina en formato de imagen
         if (cleanUrl.includes('imgur.com') && !cleanUrl.match(/\.(jpeg|jpg|gif|png)$/i)) {
-            // Extraer el código final (ej. de imgur.com/a/xa0I6bZ saca xa0I6bZ)
-            const idMatch = cleanUrl.match(/imgur\.com\/(?:a\/|gallery\/)?([a-zA-Z0-9]+)/);
-            if (idMatch && idMatch[1]) {
+            // Extraer el código final (ej. de imgur.com/gallery/ves-001-xa0I6bZ saca xa0I6bZ)
+            // Maneja enlaces /a/, /gallery/ e incluso enlaces que tienen un nombre descriptivo seguido de un guión
+            const parts = cleanUrl.split('/');
+            let idPart = parts[parts.length - 1]; // Toma la última parte de la URL
+            
+            // Si la última parte tiene un guión (ej. ves-001-xa0I6bZ), tomar solo lo que está después del último guión
+            if(idPart.includes('-')){
+                const idPieces = idPart.split('-');
+                idPart = idPieces[idPieces.length - 1];
+            }
+            
+            if (idPart) {
                 // Forzar el enlace directo con i.imgur.com y .jpeg
-                return `https://i.imgur.com/${idMatch[1]}.jpeg`;
+                return `https://i.imgur.com/${idPart}.jpeg`;
             }
         }
         return cleanUrl;
