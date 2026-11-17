@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mariela's Store - Catálogo de Vestidos</title>
+    <title>Noche & Día Dress Rental - Catálogo</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap');
 
@@ -41,6 +41,7 @@
             width: 92%;
             max-width: 1200px;
             margin: 30px auto;
+            text-align: center; /* Para centrar el mensaje de carga */
         }
 
         /* Barra de filtros por categoría */
@@ -63,6 +64,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.25s ease;
+            display: none; /* Se ocultan hasta que haya categorías cargadas */
         }
 
         .filter-btn:hover,
@@ -75,6 +77,7 @@
         /* Títulos de sección de categoría */
         .category-section {
             margin-bottom: 50px;
+            text-align: left;
         }
 
         .category-title {
@@ -175,12 +178,47 @@
             z-index: 1;
         }
 
-        .item p {
-            margin: 15px 0 12px 0;
-            font-size: 1.05em;
+        .item-info {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 5px;
+        }
+
+        .item-info p {
+            margin: 0;
             color: #333;
-            padding: 0 15px;
+        }
+
+        .item-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 5px !important;
+        }
+
+        .item-desc {
+            font-size: 0.9em;
+            color: #666 !important;
+            margin-bottom: 10px !important;
+            line-height: 1.4;
+        }
+
+        .item-meta {
+            font-size: 0.95em;
             font-weight: 500;
+        }
+
+        .price-text {
+            color: #2c3e50 !important;
+            font-weight: 600;
+        }
+        
+        .deposit-text {
+             color: #e67e22 !important;
+             font-size: 0.85em;
+             margin-top: 2px !important;
         }
 
         .btn-consultar {
@@ -193,7 +231,7 @@
             font-weight: 600;
             cursor: pointer;
             width: 80%;
-            margin: 0 auto;
+            margin: 10px auto 0;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -318,28 +356,35 @@
             font-size: 0.85em;
             color: #95a5a6;
         }
+        
+        .loading-text {
+            font-size: 1.2em;
+            color: #666;
+            margin: 40px 0;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>Mariela's Store</h1>
+    <h1>Noche & Día Dress Rental</h1>
     <p>Catálogo de Renta de Vestidos</p>
 </header>
 
 <div class="container">
-    <div class="filter-bar">
-        <button class="filter-btn active" onclick="filtrarCategoria('Todas', this)">Todas las categorías</button>
-        <button class="filter-btn" onclick="filtrarCategoria('Noche y Gala', this)">Noche y Gala</button>
-        <button class="filter-btn" onclick="filtrarCategoria('Cóctel', this)">Cóctel</button>
-        <button class="filter-btn" onclick="filtrarCategoria('Graduación', this)">Graduación</button>
-        <button class="filter-btn" onclick="filtrarCategoria('Maternidad', this)">Maternidad</button>
+    <!-- Botones para filtrar por categoría. Se llenarán dinámicamente -->
+    <div class="filter-bar" id="filter-bar">
+        <button class="filter-btn active" id="btn-todas" onclick="filtrarCategoria('Todas', this)" style="display: none;">Todas las categorías</button>
     </div>
 
-    <div id="catalog-content"></div>
+    <!-- Contenedor del catálogo -->
+    <div id="catalog-content">
+        <p class="loading-text" id="loading-msg">Cargando colección de vestidos...</p>
+    </div>
 </div>
 
-<!-- Visor modal para ver el vestido completo al hacer clic -->
+<!-- Visor modal -->
 <div id="lightbox" class="lightbox" onclick="cerrarLightbox(event)">
     <span class="lightbox-close" onclick="cerrarLightbox(event)">&times;</span>
     <img id="lightbox-img" class="lightbox-img" src="" alt="">
@@ -348,86 +393,133 @@
 </div>
 
 <footer>
-    <h2>Mariela's Store</h2>
+    <h2>Noche & Día Dress Rental</h2>
     <p>Contáctanos por WhatsApp:</p>
     <div class="footer-phones">
         <a href="https://wa.me/50488444569" class="footer-whatsapp" target="_blank">📲 8844-4569</a>
         <a href="https://wa.me/50496113944" class="footer-whatsapp" target="_blank">📲 9611-3944</a>
     </div>
-    <p class="copyright">&copy; 2026 Mariela's Store. Todos los derechos reservados.</p>
+    <p class="copyright">&copy; 2026 Noche & Día Dress Rental. Todos los derechos reservados.</p>
 </footer>
 
 <script>
-    const ordenCategorias = ['Noche y Gala', 'Cóctel', 'Graduación', 'Maternidad'];
-
-    const vestidos = [
-        // Noche y Gala
-        { id: 1, nombre: "Vestido largo vino con abertura", categoria: "Noche y Gala" },
-        { id: 10, nombre: "Vestido largo celeste floral escote V", categoria: "Noche y Gala" },
-        { id: 11, nombre: "Vestido largo amarillo mostaza cuello halter", categoria: "Noche y Gala" },
-        { id: 15, nombre: "Vestido rojo midi asimétrico con olanes", categoria: "Noche y Gala" },
-        { id: 20, nombre: "Vestido largo nude bordado en lentejuelas", categoria: "Noche y Gala" },
-        { id: 22, nombre: "Enterizo azul rey asimétrico", categoria: "Noche y Gala" },
-        { id: 24, nombre: "Vestido largo morado escote recto con abertura", categoria: "Noche y Gala" },
-        { id: 25, nombre: "Vestido midi verde esmeralda tirantes", categoria: "Noche y Gala" },
-        { id: 30, nombre: "Vestido largo verde esmeralda con flecos", categoria: "Noche y Gala" },
-        { id: 31, nombre: "Vestido largo color vino escote recto", categoria: "Noche y Gala" },
-
-        // Cóctel
-        { id: 2, nombre: "Vestido tipo chaleco largo blanco", categoria: "Cóctel" },
-        { id: 4, nombre: "Vestido cruzado beige floral", categoria: "Cóctel" },
-        { id: 6, nombre: "Vestido corto verde claro estampado", categoria: "Cóctel" },
-        { id: 9, nombre: "Vestido corto color nude ajustado manga larga", categoria: "Cóctel" },
-        { id: 12, nombre: "Vestido sin mangas diseño blanco y negro", categoria: "Cóctel" },
-        { id: 13, nombre: "Vestido corto rosa con corazones blancos", categoria: "Cóctel" },
-        { id: 14, nombre: "Vestido corto marrón suelto manga corta", categoria: "Cóctel" },
-        { id: 16, nombre: "Vestido midi camisero color arena", categoria: "Cóctel" },
-        { id: 18, nombre: "Vestido corto beige escote profundo manga larga", categoria: "Cóctel" },
-        { id: 19, nombre: "Vestido camisero rojo con estampado floral", categoria: "Cóctel" },
-        { id: 21, nombre: "Vestido largo rayas azul marino y blanco", categoria: "Cóctel" },
-        { id: 23, nombre: "Vestido corto blanco manga larga botones", categoria: "Cóctel" },
-        { id: 26, nombre: "Vestido corto blanco flores rosas", categoria: "Cóctel" },
-        { id: 27, nombre: "Vestido asimétrico fucsia y rojo", categoria: "Cóctel" },
-        { id: 28, nombre: "Vestido corto negro manga larga asimétrico", categoria: "Cóctel" },
-        { id: 29, nombre: "Vestido corto beige claro flores pequeñas", categoria: "Cóctel" },
-        { id: 32, nombre: "Vestido verde oscuro corto suelto", categoria: "Cóctel" },
-        { id: 33, nombre: "Vestido midi negro con lunares blancos", categoria: "Cóctel" },
-        { id: 34, nombre: "Vestido corto blanco con flores rojas", categoria: "Cóctel" },
-        { id: 35, nombre: "Vestido tipo blazer negro sin mangas", categoria: "Cóctel" },
-        { id: 36, nombre: "Vestido corto manga larga cuello alto floral", categoria: "Cóctel" },
-        { id: 37, nombre: "Vestido corto beige estampado hojas de colores", categoria: "Cóctel" },
-
-        // Graduación
-        { id: 17, nombre: "Vestido largo un hombro gris metálico", categoria: "Graduación" },
-
-        // Maternidad
-        { id: 3, nombre: "Vestido largo asimétrico rosa palo", categoria: "Maternidad" },
-        { id: 5, nombre: "Vestido largo azul con estampado geométrico", categoria: "Maternidad" },
-        { id: 7, nombre: "Conjunto marrón falda asimétrica y saco", categoria: "Maternidad" },
-        { id: 8, nombre: "Vestido rosa viejo manga corta escote en V", categoria: "Maternidad" }
-    ];
-
+    // === ⚠️ IMPORTANTE: REEMPLAZA ESTE ENLACE ⚠️ ===
+    // Pega aquí el enlace .csv público que sacaste de Archivo > Compartir > Publicar en la Web en Google Sheets
+    const CSV_URL = 'PEGA_AQUI_TU_ENLACE_CSV_PUBLICO'; 
+    
     const whatsappNumbers = ['50488444569', '50496113944'];
-    const catalogContent = document.getElementById('catalog-content');
+    let vestidosData = [];
+    let categoriasUnicas = [];
 
-    function handleImgError(img, id) {
-        if (!img.dataset.triedJpg) {
-            img.dataset.triedJpg = "true";
-            img.src = `images/${id}.jpg`;
-        } else if (!img.dataset.triedUpper) {
-            img.dataset.triedUpper = "true";
-            img.src = `images/${id}.JPEG`;
-        } else {
-            img.style.display = 'none';
+    // Función para leer y procesar el CSV
+    async function cargarDatos() {
+        if(CSV_URL === 'PEGA_AQUI_TU_ENLACE_CSV_PUBLICO'){
+            document.getElementById('loading-msg').innerHTML = "⚠️ Falta configurar el enlace del Google Sheet en el código HTML.";
+            document.getElementById('loading-msg').style.color = 'red';
+            return;
+        }
+
+        try {
+            const response = await fetch(CSV_URL);
+            const data = await response.text();
+            procesarCSV(data);
+        } catch (error) {
+            console.error("Error cargando el Excel:", error);
+            document.getElementById('loading-msg').innerHTML = "Ocurrió un error al cargar el inventario. Revisa el enlace del Google Sheet.";
         }
     }
 
+    // Convertir el texto CSV en un arreglo de objetos JavaScript
+    function procesarCSV(csvText) {
+        // Separar por saltos de línea y manejar comillas dobles (formato estándar CSV)
+        const rows = csvText.split(/\r?\n/);
+        if (rows.length < 2) return; // Si solo hay encabezados o está vacío
+
+        // Obtener encabezados (limpiando espacios)
+        const headersLine = parseCSVLine(rows[0]);
+        
+        vestidosData = [];
+        categoriasUnicas = new Set();
+
+        for (let i = 1; i < rows.length; i++) {
+            if (!rows[i].trim()) continue; // saltar filas vacías
+            
+            const cols = parseCSVLine(rows[i]);
+            
+            // Asignar según el orden de las columnas que creaste en el Google Sheet:
+            // 0: ID, 1: Nombre, 2: Categoría, 3: Talla, 4: Precio, 5: Depósito, 6: Descripción, 7: URL
+            
+            // Verificar si hay suficientes datos (al menos un nombre o URL)
+            if (cols.length >= 7 && cols[1] && cols[7]) {
+                const categoria = cols[2] ? cols[2].trim() : 'Sin Categoría';
+                categoriasUnicas.add(categoria);
+
+                vestidosData.push({
+                    id: cols[0],
+                    nombre: cols[1],
+                    categoria: categoria,
+                    talla: cols[3] || 'N/A',
+                    precio: cols[4] || 'Consultar',
+                    deposito: cols[5] || 'Consultar',
+                    descripcion: cols[6] || '',
+                    url: cols[7]
+                });
+            }
+        }
+
+        // Convertir el Set a Array para crear los botones
+        categoriasUnicas = Array.from(categoriasUnicas).sort();
+        
+        construirFiltros();
+        document.getElementById('loading-msg').style.display = 'none';
+        renderCatalogo('Todas');
+    }
+
+    // Función auxiliar para leer CSV manejando comillas y comas internas
+    function parseCSVLine(text) {
+        const re_value = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\s\S][^'\\]*)*)'|"([^"\\]*(?:\\[\s\S][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g;
+        let a = [];
+        text.replace(re_value, function(m0, m1, m2, m3) {
+            if (m1 !== undefined) a.push(m1.replace(/\\'/g, "'"));
+            else if (m2 !== undefined) a.push(m2.replace(/\\"/g, '"').replace(/""/g, '"'));
+            else if (m3 !== undefined) a.push(m3);
+            return '';
+        });
+        if (/,\s*$/.test(text)) a.push('');
+        return a;
+    }
+
+    // Crear botones de categoría dinámicamente según lo que haya en el Excel
+    function construirFiltros() {
+        const filterBar = document.getElementById('filter-bar');
+        const btnTodas = document.getElementById('btn-todas');
+        btnTodas.style.display = 'inline-block'; // Mostrar el botón "Todas"
+
+        categoriasUnicas.forEach(cat => {
+            if(cat !== 'Sin Categoría'){
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.style.display = 'inline-block';
+                btn.textContent = cat;
+                btn.onclick = function() { filtrarCategoria(cat, this); };
+                filterBar.appendChild(btn);
+            }
+        });
+    }
+
     function renderCatalogo(filtro = 'Todas') {
+        const catalogContent = document.getElementById('catalog-content');
         catalogContent.innerHTML = '';
-        const categoriasAMostrar = filtro === 'Todas' ? ordenCategorias : [filtro];
+        
+        if (vestidosData.length === 0) {
+            catalogContent.innerHTML = '<p class="loading-text">No hay vestidos registrados aún.</p>';
+            return;
+        }
+
+        const categoriasAMostrar = filtro === 'Todas' ? categoriasUnicas : [filtro];
 
         categoriasAMostrar.forEach(cat => {
-            const vestidosCat = vestidos.filter(v => v.categoria === cat);
+            const vestidosCat = vestidosData.filter(v => v.categoria === cat);
             if (vestidosCat.length === 0) return;
 
             const section = document.createElement('div');
@@ -444,18 +536,26 @@
             vestidosCat.forEach(vestido => {
                 const card = document.createElement('div');
                 card.className = 'item';
-                const nombreSeguro = vestido.nombre.replace(/'/g, "\\'");
+                const nombreSeguro = vestido.nombre.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                
+                // Formatear textos opcionales
+                const descHtml = vestido.descripcion ? `<p class="item-desc">${vestido.descripcion}</p>` : '';
+                
                 card.innerHTML = `
                     <div>
-                        <div class="img-container" onclick="abrirLightbox(this, ${vestido.id}, '${nombreSeguro}')">
-                            <span class="category-badge">${vestido.categoria}</span>
+                        <div class="img-container" onclick="abrirLightbox(this, '${nombreSeguro}')">
+                            <span class="category-badge">${vestido.talla}</span>
                             <span class="zoom-hint">🔍 Ver completo</span>
-                            <span class="fallback-text">${vestido.nombre}</span>
-                            <img src="images/${vestido.id}.jpeg" alt="${vestido.nombre}" onerror="handleImgError(this, ${vestido.id})">
+                            <img src="${vestido.url}" alt="${vestido.nombre}" onerror="this.src='https://via.placeholder.com/400x500/ffe6ea/d88ca8?text=Foto+no+encontrada'">
                         </div>
-                        <p>${vestido.nombre}</p>
+                        <div class="item-info">
+                            <p class="item-title">${vestido.nombre}</p>
+                            ${descHtml}
+                            <p class="item-meta price-text">Alquiler: ${vestido.precio}</p>
+                            <p class="item-meta deposit-text">Depósito: ${vestido.deposito}</p>
+                        </div>
                     </div>
-                    <button class="btn-consultar" onclick="consultarVestido(${vestido.id}, '${nombreSeguro}')">
+                    <button class="btn-consultar" onclick="consultarVestido('${nombreSeguro}', '${vestido.url}')">
                         📲 Consultar
                     </button>
                 `;
@@ -473,7 +573,7 @@
         renderCatalogo(categoria);
     }
 
-    function abrirLightbox(container, id, nombre) {
+    function abrirLightbox(container, nombre) {
         const imgElement = container.querySelector('img');
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
@@ -485,7 +585,7 @@
         lightboxCaption.textContent = nombre;
         lightboxBtn.onclick = function(e) {
             e.stopPropagation();
-            consultarVestido(id, nombre);
+            consultarVestido(nombre, imgElement.src);
         };
 
         lightbox.classList.add('active');
@@ -506,16 +606,15 @@
         }
     });
 
-    function consultarVestido(id, nombre) {
+    function consultarVestido(nombre, urlImagen) {
         const randomIndex = Math.floor(Math.random() * whatsappNumbers.length);
         const numeroElegido = whatsappNumbers[randomIndex];
-        const baseUrl = window.location.href.split('#')[0].replace(/index\.html$/, '');
-        const urlImagen = `${baseUrl}images/${id}.jpeg`;
-        const mensaje = encodeURIComponent(`¡Hola Mariela's Store! 🌸 Me interesa consultar por el vestido: *${nombre}*\n\nFoto del vestido: ${urlImagen}`);
+        const mensaje = encodeURIComponent(`¡Hola Noche & Día Dress Rental! 🌸 Me interesa consultar por el vestido: *${nombre}*\n\nFoto del vestido: ${urlImagen}`);
         window.open(`https://wa.me/${numeroElegido}?text=${mensaje}`, '_blank');
     }
 
-    renderCatalogo('Todas');
+    // Iniciar la carga al abrir la página
+    window.onload = cargarDatos;
 </script>
 
 </body>
