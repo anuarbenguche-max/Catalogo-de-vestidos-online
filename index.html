@@ -4,12 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mariela's Store - Catálogo de Vestidos</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap');
 
         body {
             font-family: 'Inter', sans-serif;
@@ -23,79 +19,40 @@
             background-color: #ffb6c1;
             color: white;
             text-align: center;
-            padding: 2.5rem 1rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            padding: 2.2rem 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
-        header h1 {
+        h1 {
             margin: 0;
             font-family: 'Playfair Display', serif;
-            font-size: clamp(2.2rem, 5vw, 3.2rem);
+            font-size: 2.8em;
             letter-spacing: 2px;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         header p {
-            margin: 8px 0 0 0;
-            font-size: 1.05rem;
+            margin: 8px 0 0;
+            font-size: 1.1em;
             font-weight: 300;
             letter-spacing: 1px;
-            opacity: 0.95;
         }
 
         .container {
             width: 92%;
-            max-width: 1240px;
-            margin: 35px auto;
+            max-width: 1200px;
+            margin: 40px auto;
         }
 
-        /* Filtros de categoría */
-        .filters {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 35px;
-        }
-
-        .filter-btn {
-            background-color: white;
-            border: 1px solid #ffd1d9;
-            color: #555;
-            padding: 10px 22px;
-            border-radius: 25px;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-        }
-
-        .filter-btn:hover {
-            border-color: #ffb6c1;
-            color: #d86c82;
-            transform: translateY(-2px);
-        }
-
-        .filter-btn.active {
-            background-color: #ffb6c1;
-            color: white;
-            border-color: #ffb6c1;
-            box-shadow: 0 4px 10px rgba(255, 182, 193, 0.4);
-        }
-
-        /* Galería de vestidos */
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 28px;
         }
 
         .item {
             background-color: white;
-            border-radius: 14px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
             overflow: hidden;
             text-align: center;
             padding-bottom: 20px;
@@ -106,8 +63,8 @@
         }
 
         .item:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-6px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
         }
 
         .img-container {
@@ -119,20 +76,6 @@
             align-items: center;
             justify-content: center;
             position: relative;
-        }
-
-        .category-badge {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background-color: rgba(255, 255, 255, 0.92);
-            color: #b55d70;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            z-index: 3;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         }
 
         .item img {
@@ -148,120 +91,98 @@
         }
 
         .item:hover img {
-            transform: scale(1.05);
+            transform: scale(1.04);
         }
 
         .fallback-text {
             color: #d88ca8;
             font-weight: 500;
-            font-size: 1.1rem;
-            padding: 25px;
+            font-size: 1.1em;
+            padding: 20px;
             text-align: center;
             z-index: 1;
-            line-height: 1.4;
-        }
-
-        .card-body {
-            padding: 16px 18px 0 18px;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1;
-            justify-content: space-between;
         }
 
         .item p {
-            margin: 0 0 16px 0;
-            font-size: 1.02rem;
+            margin: 15px 0 12px 0;
+            font-size: 1.05em;
             color: #333;
+            padding: 0 15px;
             font-weight: 500;
-            line-height: 1.4;
         }
 
-        /* Botón Consultar en cada tarjeta */
         .btn-consultar {
             background-color: #25D366;
             color: white;
             border: none;
             border-radius: 25px;
-            padding: 12px 20px;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.98rem;
+            padding: 11px 24px;
+            font-size: 1em;
             font-weight: 600;
             cursor: pointer;
-            width: 100%;
+            width: 80%;
+            margin: 0 auto;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            box-shadow: 0 3px 8px rgba(37, 211, 102, 0.25);
             transition: background-color 0.25s ease, transform 0.2s ease;
-            box-shadow: 0 4px 10px rgba(37, 211, 102, 0.25);
         }
 
         .btn-consultar:hover {
             background-color: #1ebe5d;
-            transform: scale(1.02);
+            transform: scale(1.03);
         }
 
-        .btn-consultar svg {
-            width: 18px;
-            height: 18px;
-            fill: currentColor;
-        }
-
-        /* Pie de página */
         footer {
             background-color: #2c3e50;
             color: white;
             text-align: center;
-            padding: 40px 20px;
+            padding: 35px 20px;
             margin-top: 60px;
         }
 
         footer h2 {
+            margin: 0 0 10px 0;
             font-family: 'Playfair Display', serif;
             color: #ffb6c1;
-            margin: 0 0 10px 0;
-            font-size: 1.8rem;
+            font-size: 1.8em;
         }
 
         footer p {
             margin: 8px 0;
-            font-size: 0.95rem;
-            color: #e2e8f0;
+            font-size: 1em;
+            color: #e0e6ed;
         }
 
         .footer-phones {
-            margin: 20px 0;
+            margin: 18px 0;
             display: flex;
             justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
-        .phone-link {
+        .footer-whatsapp {
             background-color: rgba(255, 255, 255, 0.1);
             color: #25D366;
-            text-decoration: none;
             padding: 10px 20px;
             border-radius: 25px;
+            text-decoration: none;
             font-weight: 600;
-            font-size: 1.05rem;
-            transition: background-color 0.25s ease, transform 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            font-size: 1.05em;
+            transition: background-color 0.3s ease;
         }
 
-        .phone-link:hover {
+        .footer-whatsapp:hover {
             background-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
         }
 
         .copyright {
             margin-top: 25px;
-            font-size: 0.85rem;
-            color: #94a3b8;
+            font-size: 0.85em;
+            color: #95a5a6;
         }
     </style>
 </head>
@@ -273,131 +194,102 @@
 </header>
 
 <div class="container">
-    <!-- Botones de Filtro por Categoría -->
-    <div class="filters">
-        <button class="filter-btn active" onclick="filtrarCategoria('Todos', this)">Todos (37)</button>
-        <button class="filter-btn" onclick="filtrarCategoria('Cóctel', this)">Cóctel</button>
-        <button class="filter-btn" onclick="filtrarCategoria('Gala', this)">Noche y Gala</button>
-        <button class="filter-btn" onclick="filtrarCategoria('Graduación', this)">Graduación</button>
-        <button class="filter-btn" onclick="filtrarCategoria('Maternidad', this)">Maternidad</button>
-    </div>
-
-    <!-- Contenedor donde se cargan los 37 vestidos -->
-    <div class="gallery" id="catalogo-galeria"></div>
+    <div id="gallery" class="gallery"></div>
 </div>
 
 <footer>
     <h2>Mariela's Store</h2>
-    <p>Contáctanos directamente a nuestros números de WhatsApp:</p>
+    <p>Contáctanos por WhatsApp:</p>
     <div class="footer-phones">
-        <a href="https://wa.me/50488444569" class="phone-link" target="_blank">📲 8844-4569</a>
-        <a href="https://wa.me/50496113944" class="phone-link" target="_blank">📲 9611-3944</a>
+        <a href="https://wa.me/50488444569" class="footer-whatsapp" target="_blank">📲 8844-4569</a>
+        <a href="https://wa.me/50496113944" class="footer-whatsapp" target="_blank">📲 9611-3944</a>
     </div>
     <p class="copyright">&copy; 2026 Mariela's Store. Todos los derechos reservados.</p>
 </footer>
 
 <script>
-    // Números de WhatsApp con código de país (Honduras +504)
-    const numerosWhatsApp = ['50488444569', '50496113944'];
-
-    // Lista oficial de los 37 vestidos
     const vestidos = [
-        { id: 1, nombre: "Vestido largo vino con abertura", categoria: "Gala", imagen: "images/1.jpg" },
-        { id: 2, nombre: "Vestido tipo chaleco largo blanco", categoria: "Cóctel", imagen: "images/2.jpg" },
-        { id: 3, nombre: "Vestido largo asimétrico rosa palo", categoria: "Maternidad", imagen: "images/3.jpg" },
-        { id: 4, nombre: "Vestido cruzado beige floral", categoria: "Cóctel", imagen: "images/4.jpg" },
-        { id: 5, nombre: "Vestido largo azul con estampado de panal", categoria: "Maternidad", imagen: "images/5.jpg" },
-        { id: 6, nombre: "Vestido corto verde claro estampado", categoria: "Cóctel", imagen: "images/6.jpg" },
-        { id: 7, nombre: "Conjunto marrón falda asimétrica y saco", categoria: "Maternidad", imagen: "images/7.jpg" },
-        { id: 8, nombre: "Vestido rosa viejo manga corta escote en V", categoria: "Cóctel", imagen: "images/8.jpg" },
-        { id: 9, nombre: "Vestido corto color nude ajustado manga larga", categoria: "Maternidad", imagen: "images/9.jpg" },
-        { id: 10, nombre: "Vestido largo beige claro flores escote V", categoria: "Cóctel", imagen: "images/10.jpg" },
-        { id: 11, nombre: "Vestido largo amarillo mostaza cuello halter", categoria: "Gala", imagen: "images/11.jpg" },
-        { id: 12, nombre: "Vestido sin mangas diseño blanco y negro", categoria: "Cóctel", imagen: "images/12.jpg" },
-        { id: 13, nombre: "Vestido corto rosa con corazones blancos tirantes", categoria: "Cóctel", imagen: "images/13.jpg" },
-        { id: 14, nombre: "Vestido corto marrón suelto manga corta", categoria: "Cóctel", imagen: "images/14.jpg" },
-        { id: 15, nombre: "Vestido rojo midi asimétrico con olanes", categoria: "Gala", imagen: "images/15.jpg" },
-        { id: 16, nombre: "Vestido midi camisero color arena", categoria: "Cóctel", imagen: "images/16.jpg" },
-        { id: 17, nombre: "Vestido largo un hombro gris metálico", categoria: "Graduación", imagen: "images/17.jpg" },
-        { id: 18, nombre: "Vestido corto beige escote profundo manga larga", categoria: "Cóctel", imagen: "images/18.jpg" },
-        { id: 19, nombre: "Vestido camisero rojo con estampado floral azul/blanco", categoria: "Cóctel", imagen: "images/19.jpg" },
-        { id: 20, nombre: "Vestido largo nude bordado en lentejuelas", categoria: "Gala", imagen: "images/20.jpg" },
-        { id: 21, nombre: "Vestido largo rayas azul marino y blanco", categoria: "Cóctel", imagen: "images/21.jpg" },
-        { id: 22, nombre: "Enterizo azul rey asimétrico pierna ancha", categoria: "Gala", imagen: "images/22.jpg" },
-        { id: 23, nombre: "Vestido corto blanco cuello redondo cierres tipo nudo", categoria: "Cóctel", imagen: "images/23.jpg" },
-        { id: 24, nombre: "Vestido largo morado escote barco gran abertura frontal", categoria: "Gala", imagen: "images/24.jpg" },
-        { id: 25, nombre: "Vestido midi verde esmeralda tirantes para amarrar", categoria: "Gala", imagen: "images/25.jpg" },
-        { id: 26, nombre: "Vestido corto blanco flores rosas escote profundo fruncido cintura", categoria: "Cóctel", imagen: "images/26.jpg" },
-        { id: 27, nombre: "Vestido asimétrico fucsia y rojo fruncido", categoria: "Cóctel", imagen: "images/27.jpg" },
-        { id: 28, nombre: "Vestido corto negro manga larga asimétrico fruncido", categoria: "Cóctel", imagen: "images/28.jpg" },
-        { id: 29, nombre: "Vestido corto beige claro flores escote lazo", categoria: "Cóctel", imagen: "images/29.jpg" },
-        { id: 30, nombre: "Vestido largo verde esmeralda escote corazón flecos largos", categoria: "Gala", imagen: "images/30.jpg" },
-        { id: 31, nombre: "Vestido largo color vino escote recto", categoria: "Gala", imagen: "images/31.jpg" },
-        { id: 32, nombre: "Vestido verde oscuro suelto manga corta holanes bajos", categoria: "Cóctel", imagen: "images/32.jpg" },
-        { id: 33, nombre: "Vestido midi negro lunares blancos sin mangas abotonado", categoria: "Cóctel", imagen: "images/33.jpg" },
-        { id: 34, nombre: "Vestido corto blanco flores rojas manga corta vuelos escote cruzado", categoria: "Cóctel", imagen: "images/34.jpg" },
-        { id: 35, nombre: "Vestido tipo chaleco blazer negro sin mangas botones dorados", categoria: "Cóctel", imagen: "images/35.jpg" },
-        { id: 36, nombre: "Vestido corto manga larga cuello alto estampado floral oscuro", categoria: "Cóctel", imagen: "images/36.jpg" },
-        { id: 37, nombre: "Vestido corto beige estampado hojas colores escote en V espalda cruzada manga murciélago", categoria: "Cóctel", imagen: "images/37.jpg" }
+        { id: 1, nombre: "Vestido largo vino con abertura" },
+        { id: 2, nombre: "Vestido tipo chaleco largo blanco" },
+        { id: 3, nombre: "Vestido largo asimétrico rosa palo" },
+        { id: 4, nombre: "Vestido cruzado beige floral" },
+        { id: 5, nombre: "Vestido largo azul con estampado geométrico" },
+        { id: 6, nombre: "Vestido corto verde claro estampado" },
+        { id: 7, nombre: "Conjunto marrón falda asimétrica y saco" },
+        { id: 8, nombre: "Vestido rosa viejo manga corta escote en V" },
+        { id: 9, nombre: "Vestido corto color nude ajustado manga larga" },
+        { id: 10, nombre: "Vestido largo celeste floral escote V" },
+        { id: 11, nombre: "Vestido largo amarillo mostaza cuello halter" },
+        { id: 12, nombre: "Vestido sin mangas diseño blanco y negro" },
+        { id: 13, nombre: "Vestido corto rosa con corazones blancos" },
+        { id: 14, nombre: "Vestido corto marrón suelto manga corta" },
+        { id: 15, nombre: "Vestido rojo midi asimétrico con olanes" },
+        { id: 16, nombre: "Vestido midi camisero color arena" },
+        { id: 17, nombre: "Vestido largo un hombro gris metálico" },
+        { id: 18, nombre: "Vestido corto beige escote profundo manga larga" },
+        { id: 19, nombre: "Vestido camisero rojo con estampado floral" },
+        { id: 20, nombre: "Vestido largo nude bordado en lentejuelas" },
+        { id: 21, nombre: "Vestido largo rayas azul marino y blanco" },
+        { id: 22, nombre: "Enterizo azul rey asimétrico" },
+        { id: 23, nombre: "Vestido corto blanco manga larga botones" },
+        { id: 24, nombre: "Vestido largo morado escote recto con abertura" },
+        { id: 25, nombre: "Vestido midi verde esmeralda tirantes" },
+        { id: 26, nombre: "Vestido corto blanco flores rosas" },
+        { id: 27, nombre: "Vestido asimétrico fucsia y rojo" },
+        { id: 28, nombre: "Vestido corto negro manga larga asimétrico" },
+        { id: 29, nombre: "Vestido corto beige claro flores pequeñas" },
+        { id: 30, nombre: "Vestido largo verde esmeralda con flecos" },
+        { id: 31, nombre: "Vestido largo color vino escote recto" },
+        { id: 32, nombre: "Vestido verde oscuro corto suelto" },
+        { id: 33, nombre: "Vestido midi negro con lunares blancos" },
+        { id: 34, nombre: "Vestido corto blanco con flores rojas" },
+        { id: 35, nombre: "Vestido tipo blazer negro sin mangas" },
+        { id: 36, nombre: "Vestido corto manga larga cuello alto floral" },
+        { id: 37, nombre: "Vestido corto beige estampado hojas de colores" }
     ];
 
-    const galeria = document.getElementById('catalogo-galeria');
+    const whatsappNumbers = ['50488444569', '50496113944'];
+    const gallery = document.getElementById('gallery');
 
-    function mostrarVestidos(categoriaFiltro = 'Todos') {
-        galeria.innerHTML = '';
+    // Función de respaldo por si alguna imagen tiene extensión .jpg o .JPEG en vez de .jpeg
+    function handleImgError(img, id) {
+        if (!img.dataset.triedJpg) {
+            img.dataset.triedJpg = "true";
+            img.src = `images/${id}.jpg`;
+        } else if (!img.dataset.triedUpper) {
+            img.dataset.triedUpper = "true";
+            img.src = `images/${id}.JPEG`;
+        } else {
+            img.style.display = 'none';
+        }
+    }
 
-        const listaFiltrada = categoriaFiltro === 'Todos'
-            ? vestidos
-            : vestidos.filter(v => v.categoria === categoriaFiltro);
-
-        listaFiltrada.forEach(vestido => {
-            const card = document.createElement('div');
-            card.className = 'item';
-
-            card.innerHTML = `
+    vestidos.forEach(vestido => {
+        const card = document.createElement('div');
+        card.className = 'item';
+        card.innerHTML = `
+            <div>
                 <div class="img-container">
-                    <span class="category-badge">${vestido.categoria}</span>
                     <span class="fallback-text">${vestido.nombre}</span>
-                    <img src="${vestido.imagen}" alt="${vestido.nombre}" onerror="this.style.display='none'">
+                    <img src="images/${vestido.id}.jpeg" alt="${vestido.nombre}" onerror="handleImgError(this, ${vestido.id})">
                 </div>
-                <div class="card-body">
-                    <p>${vestido.nombre}</p>
-                    <button class="btn-consultar" onclick="consultarVestido('${vestido.nombre.replace(/'/g, "\\'")}', '${vestido.imagen}')">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
-                        </svg>
-                        Consultar
-                    </button>
-                </div>
-            `;
-            galeria.appendChild(card);
-        });
+                <p>${vestido.nombre}</p>
+            </div>
+            <button class="btn-consultar" onclick="consultarVestido(${vestido.id}, '${vestido.nombre.replace(/'/g, "\\'")}')">
+                📲 Consultar
+            </button>
+        `;
+        gallery.appendChild(card);
+    });
+
+    function consultarVestido(id, nombre) {
+        const randomIndex = Math.floor(Math.random() * whatsappNumbers.length);
+        const numeroElegido = whatsappNumbers[randomIndex];
+        const baseUrl = window.location.href.split('#')[0].replace(/index\.html$/, '');
+        const urlImagen = `${baseUrl}images/${id}.jpeg`;
+        const mensaje = encodeURIComponent(`¡Hola Mariela's Store! 🌸 Me interesa consultar por el vestido: *${nombre}*\n\nFoto del vestido: ${urlImagen}`);
+        window.open(`https://wa.me/${numeroElegido}?text=${mensaje}`, '_blank');
     }
-
-    function filtrarCategoria(categoria, botonClickeado) {
-        const botones = document.querySelectorAll('.filter-btn');
-        botones.forEach(btn => btn.classList.remove('active'));
-        botonClickeado.classList.add('active');
-        mostrarVestidos(categoria);
-    }
-
-    function consultarVestido(nombreVestido, rutaImagen) {
-        // Selecciona al azar entre los 2 números de WhatsApp
-        const indiceAleatorio = Math.floor(Math.random() * numerosWhatsApp.length);
-        const numeroElegido = numerosWhatsApp[indiceAleatorio];
-
-        // Construye el enlace completo de la imagen cuando esté alojada en GitHub Pages
-        const basePath = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
-        const urlImagen = basePath + rutaImagen;
-
-        const mensaje = `¡Hola Mariela's Store! 🌸 Me interesa consultar por el vestido: *${nombreVestido}*.\n\nFoto del vestido: ${urlImagen}`;
-        const urlWhatsApp = `https://wa.me/${numeroElegido}?text=${encodeURIComponent(mensaje)}`;
-
-        window.open(urlWhatsApp, '_blank');
-    }
-
-    // Cargar todos los vestidos al abrir la página
-    mostrarVestidos();
 </script>
 
 </body>
