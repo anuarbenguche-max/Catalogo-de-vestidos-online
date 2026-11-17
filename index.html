@@ -40,7 +40,50 @@
         .container {
             width: 92%;
             max-width: 1200px;
-            margin: 40px auto;
+            margin: 30px auto;
+        }
+
+        /* Barra de filtros por categoría */
+        .filter-bar {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 35px;
+        }
+
+        .filter-btn {
+            background-color: white;
+            color: #555;
+            border: 2px solid #ffb6c1;
+            border-radius: 25px;
+            padding: 10px 22px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background-color: #ffb6c1;
+            color: white;
+            box-shadow: 0 4px 10px rgba(255, 182, 193, 0.4);
+        }
+
+        /* Títulos de sección de categoría */
+        .category-section {
+            margin-bottom: 50px;
+        }
+
+        .category-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2em;
+            color: #2c3e50;
+            border-bottom: 2px solid #ffb6c1;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
         }
 
         .gallery {
@@ -92,6 +135,20 @@
 
         .item:hover img {
             transform: scale(1.04);
+        }
+
+        .category-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background-color: rgba(44, 62, 80, 0.85);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.78em;
+            font-weight: 500;
+            z-index: 3;
+            letter-spacing: 0.5px;
         }
 
         .fallback-text {
@@ -194,7 +251,17 @@
 </header>
 
 <div class="container">
-    <div id="gallery" class="gallery"></div>
+    <!-- Botones para filtrar por categoría -->
+    <div class="filter-bar">
+        <button class="filter-btn active" onclick="filtrarCategoria('Todas', this)">Todas las categorías</button>
+        <button class="filter-btn" onclick="filtrarCategoria('Noche y Gala', this)">Noche y Gala</button>
+        <button class="filter-btn" onclick="filtrarCategoria('Cóctel', this)">Cóctel</button>
+        <button class="filter-btn" onclick="filtrarCategoria('Graduación', this)">Graduación</button>
+        <button class="filter-btn" onclick="filtrarCategoria('Maternidad', this)">Maternidad</button>
+    </div>
+
+    <!-- Contenedor donde se agrupan las categorías -->
+    <div id="catalog-content"></div>
 </div>
 
 <footer>
@@ -208,50 +275,58 @@
 </footer>
 
 <script>
+    const ordenCategorias = ['Noche y Gala', 'Cóctel', 'Graduación', 'Maternidad'];
+
     const vestidos = [
-        { id: 1, nombre: "Vestido largo vino con abertura" },
-        { id: 2, nombre: "Vestido tipo chaleco largo blanco" },
-        { id: 3, nombre: "Vestido largo asimétrico rosa palo" },
-        { id: 4, nombre: "Vestido cruzado beige floral" },
-        { id: 5, nombre: "Vestido largo azul con estampado geométrico" },
-        { id: 6, nombre: "Vestido corto verde claro estampado" },
-        { id: 7, nombre: "Conjunto marrón falda asimétrica y saco" },
-        { id: 8, nombre: "Vestido rosa viejo manga corta escote en V" },
-        { id: 9, nombre: "Vestido corto color nude ajustado manga larga" },
-        { id: 10, nombre: "Vestido largo celeste floral escote V" },
-        { id: 11, nombre: "Vestido largo amarillo mostaza cuello halter" },
-        { id: 12, nombre: "Vestido sin mangas diseño blanco y negro" },
-        { id: 13, nombre: "Vestido corto rosa con corazones blancos" },
-        { id: 14, nombre: "Vestido corto marrón suelto manga corta" },
-        { id: 15, nombre: "Vestido rojo midi asimétrico con olanes" },
-        { id: 16, nombre: "Vestido midi camisero color arena" },
-        { id: 17, nombre: "Vestido largo un hombro gris metálico" },
-        { id: 18, nombre: "Vestido corto beige escote profundo manga larga" },
-        { id: 19, nombre: "Vestido camisero rojo con estampado floral" },
-        { id: 20, nombre: "Vestido largo nude bordado en lentejuelas" },
-        { id: 21, nombre: "Vestido largo rayas azul marino y blanco" },
-        { id: 22, nombre: "Enterizo azul rey asimétrico" },
-        { id: 23, nombre: "Vestido corto blanco manga larga botones" },
-        { id: 24, nombre: "Vestido largo morado escote recto con abertura" },
-        { id: 25, nombre: "Vestido midi verde esmeralda tirantes" },
-        { id: 26, nombre: "Vestido corto blanco flores rosas" },
-        { id: 27, nombre: "Vestido asimétrico fucsia y rojo" },
-        { id: 28, nombre: "Vestido corto negro manga larga asimétrico" },
-        { id: 29, nombre: "Vestido corto beige claro flores pequeñas" },
-        { id: 30, nombre: "Vestido largo verde esmeralda con flecos" },
-        { id: 31, nombre: "Vestido largo color vino escote recto" },
-        { id: 32, nombre: "Vestido verde oscuro corto suelto" },
-        { id: 33, nombre: "Vestido midi negro con lunares blancos" },
-        { id: 34, nombre: "Vestido corto blanco con flores rojas" },
-        { id: 35, nombre: "Vestido tipo blazer negro sin mangas" },
-        { id: 36, nombre: "Vestido corto manga larga cuello alto floral" },
-        { id: 37, nombre: "Vestido corto beige estampado hojas de colores" }
+        // Noche y Gala
+        { id: 1, nombre: "Vestido largo vino con abertura", categoria: "Noche y Gala" },
+        { id: 10, nombre: "Vestido largo celeste floral escote V", categoria: "Noche y Gala" },
+        { id: 11, nombre: "Vestido largo amarillo mostaza cuello halter", categoria: "Noche y Gala" },
+        { id: 15, nombre: "Vestido rojo midi asimétrico con olanes", categoria: "Noche y Gala" },
+        { id: 20, nombre: "Vestido largo nude bordado en lentejuelas", categoria: "Noche y Gala" },
+        { id: 22, nombre: "Enterizo azul rey asimétrico", categoria: "Noche y Gala" },
+        { id: 24, nombre: "Vestido largo morado escote recto con abertura", categoria: "Noche y Gala" },
+        { id: 25, nombre: "Vestido midi verde esmeralda tirantes", categoria: "Noche y Gala" },
+        { id: 30, nombre: "Vestido largo verde esmeralda con flecos", categoria: "Noche y Gala" },
+        { id: 31, nombre: "Vestido largo color vino escote recto", categoria: "Noche y Gala" },
+
+        // Cóctel
+        { id: 2, nombre: "Vestido tipo chaleco largo blanco", categoria: "Cóctel" },
+        { id: 4, nombre: "Vestido cruzado beige floral", categoria: "Cóctel" },
+        { id: 6, nombre: "Vestido corto verde claro estampado", categoria: "Cóctel" },
+        { id: 9, nombre: "Vestido corto color nude ajustado manga larga", categoria: "Cóctel" },
+        { id: 12, nombre: "Vestido sin mangas diseño blanco y negro", categoria: "Cóctel" },
+        { id: 13, nombre: "Vestido corto rosa con corazones blancos", categoria: "Cóctel" },
+        { id: 14, nombre: "Vestido corto marrón suelto manga corta", categoria: "Cóctel" },
+        { id: 16, nombre: "Vestido midi camisero color arena", categoria: "Cóctel" },
+        { id: 18, nombre: "Vestido corto beige escote profundo manga larga", categoria: "Cóctel" },
+        { id: 19, nombre: "Vestido camisero rojo con estampado floral", categoria: "Cóctel" },
+        { id: 21, nombre: "Vestido largo rayas azul marino y blanco", categoria: "Cóctel" },
+        { id: 23, nombre: "Vestido corto blanco manga larga botones", categoria: "Cóctel" },
+        { id: 26, nombre: "Vestido corto blanco flores rosas", categoria: "Cóctel" },
+        { id: 27, nombre: "Vestido asimétrico fucsia y rojo", categoria: "Cóctel" },
+        { id: 28, nombre: "Vestido corto negro manga larga asimétrico", categoria: "Cóctel" },
+        { id: 29, nombre: "Vestido corto beige claro flores pequeñas", categoria: "Cóctel" },
+        { id: 32, nombre: "Vestido verde oscuro corto suelto", categoria: "Cóctel" },
+        { id: 33, nombre: "Vestido midi negro con lunares blancos", categoria: "Cóctel" },
+        { id: 34, nombre: "Vestido corto blanco con flores rojas", categoria: "Cóctel" },
+        { id: 35, nombre: "Vestido tipo blazer negro sin mangas", categoria: "Cóctel" },
+        { id: 36, nombre: "Vestido corto manga larga cuello alto floral", categoria: "Cóctel" },
+        { id: 37, nombre: "Vestido corto beige estampado hojas de colores", categoria: "Cóctel" },
+
+        // Graduación
+        { id: 17, nombre: "Vestido largo un hombro gris metálico", categoria: "Graduación" },
+
+        // Maternidad
+        { id: 3, nombre: "Vestido largo asimétrico rosa palo", categoria: "Maternidad" },
+        { id: 5, nombre: "Vestido largo azul con estampado geométrico", categoria: "Maternidad" },
+        { id: 7, nombre: "Conjunto marrón falda asimétrica y saco", categoria: "Maternidad" },
+        { id: 8, nombre: "Vestido rosa viejo manga corta escote en V", categoria: "Maternidad" }
     ];
 
     const whatsappNumbers = ['50488444569', '50496113944'];
-    const gallery = document.getElementById('gallery');
+    const catalogContent = document.getElementById('catalog-content');
 
-    // Función de respaldo por si alguna imagen tiene extensión .jpg o .JPEG en vez de .jpeg
     function handleImgError(img, id) {
         if (!img.dataset.triedJpg) {
             img.dataset.triedJpg = "true";
@@ -264,23 +339,54 @@
         }
     }
 
-    vestidos.forEach(vestido => {
-        const card = document.createElement('div');
-        card.className = 'item';
-        card.innerHTML = `
-            <div>
-                <div class="img-container">
-                    <span class="fallback-text">${vestido.nombre}</span>
-                    <img src="images/${vestido.id}.jpeg" alt="${vestido.nombre}" onerror="handleImgError(this, ${vestido.id})">
-                </div>
-                <p>${vestido.nombre}</p>
-            </div>
-            <button class="btn-consultar" onclick="consultarVestido(${vestido.id}, '${vestido.nombre.replace(/'/g, "\\'")}')">
-                📲 Consultar
-            </button>
-        `;
-        gallery.appendChild(card);
-    });
+    function renderCatalogo(filtro = 'Todas') {
+        catalogContent.innerHTML = '';
+        const categoriasAMostrar = filtro === 'Todas' ? ordenCategorias : [filtro];
+
+        categoriasAMostrar.forEach(cat => {
+            const vestidosCat = vestidos.filter(v => v.categoria === cat);
+            if (vestidosCat.length === 0) return;
+
+            const section = document.createElement('div');
+            section.className = 'category-section';
+
+            const title = document.createElement('h2');
+            title.className = 'category-title';
+            title.textContent = cat;
+            section.appendChild(title);
+
+            const grid = document.createElement('div');
+            grid.className = 'gallery';
+
+            vestidosCat.forEach(vestido => {
+                const card = document.createElement('div');
+                card.className = 'item';
+                card.innerHTML = `
+                    <div>
+                        <div class="img-container">
+                            <span class="category-badge">${vestido.categoria}</span>
+                            <span class="fallback-text">${vestido.nombre}</span>
+                            <img src="images/${vestido.id}.jpeg" alt="${vestido.nombre}" onerror="handleImgError(this, ${vestido.id})">
+                        </div>
+                        <p>${vestido.nombre}</p>
+                    </div>
+                    <button class="btn-consultar" onclick="consultarVestido(${vestido.id}, '${vestido.nombre.replace(/'/g, "\\'")}')">
+                        📲 Consultar
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+
+            section.appendChild(grid);
+            catalogContent.appendChild(section);
+        });
+    }
+
+    function filtrarCategoria(categoria, btnElement) {
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active');
+        renderCatalogo(categoria);
+    }
 
     function consultarVestido(id, nombre) {
         const randomIndex = Math.floor(Math.random() * whatsappNumbers.length);
@@ -290,6 +396,9 @@
         const mensaje = encodeURIComponent(`¡Hola Mariela's Store! 🌸 Me interesa consultar por el vestido: *${nombre}*\n\nFoto del vestido: ${urlImagen}`);
         window.open(`https://wa.me/${numeroElegido}?text=${mensaje}`, '_blank');
     }
+
+    // Mostrar todo el catálogo ordenado por categoría al iniciar
+    renderCatalogo('Todas');
 </script>
 
 </body>
