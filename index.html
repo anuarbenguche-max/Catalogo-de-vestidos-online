@@ -89,10 +89,13 @@
             margin-bottom: 25px;
         }
 
+        /* AJUSTE PARA MANTENER EL TAMAÑO DE LAS TARJETAS */
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            /* Usamos auto-fill en lugar de auto-fit para evitar que un solo elemento se expanda */
+            grid-template-columns: repeat(auto-fill, minmax(280px, 320px)); 
             gap: 28px;
+            justify-content: center; /* Centra las tarjetas si hay pocas */
         }
 
         .item {
@@ -106,6 +109,9 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            width: 100%; /* Asegura que respete las medidas del grid */
+            max-width: 320px; /* Tamaño máximo fijo */
+            margin: 0 auto; /* Centra la tarjeta en su espacio */
         }
 
         .item:hover {
@@ -156,6 +162,20 @@
             pointer-events: none;
         }
 
+        .color-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background-color: rgba(255, 182, 193, 0.9);
+            color: #2c3e50;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.78em;
+            font-weight: 600;
+            z-index: 3;
+            pointer-events: none;
+        }
+
         .zoom-hint {
             position: absolute;
             bottom: 10px;
@@ -194,6 +214,10 @@
             color: #666 !important;
             margin-bottom: 10px !important;
             line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .item-meta {
@@ -291,6 +315,14 @@
             font-weight: 500;
             text-align: center;
         }
+        
+        .lightbox-desc {
+            color: #ddd;
+            margin: 0 0 15px;
+            font-size: 0.95em;
+            text-align: center;
+            max-width: 80%;
+        }
 
         .lightbox .btn-consultar {
             width: auto;
@@ -369,7 +401,7 @@
     </div>
 
     <div id="catalog-content">
-        <p class="loading-text" id="loading-msg">Cargando colección de vestidos...</p>
+        <p class="loading-text" id="loading-msg">Conectando con el inventario...</p>
     </div>
 </div>
 
@@ -377,6 +409,7 @@
     <span class="lightbox-close" onclick="cerrarLightbox(event)">&times;</span>
     <img id="lightbox-img" class="lightbox-img" src="" alt="">
     <p id="lightbox-caption" class="lightbox-caption"></p>
+    <p id="lightbox-desc" class="lightbox-desc"></p>
     <button id="lightbox-btn" class="btn-consultar">📲 Consultar</button>
 </div>
 
@@ -391,6 +424,7 @@
 </footer>
 
 <script>
+    // === ENLACE PÚBLICO DEL CSV DE GOOGLE SHEETS ===
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSR8LUiz6js9SmZ7gYMUOCTBPubAjDr-PUX1FpH6jbFY9I7DSR_cnRo6zc64T0MhItQb0TokMIMl4jY/pub?gid=0&single=true&output=csv'; 
     
     const whatsappNumbers = ['50488444569', '50496113944'];
@@ -403,24 +437,24 @@
             const data = await response.text();
             procesarCSV(data);
         } catch (error) {
-            console.error("Error cargando el Excel:", error);
+            console.error("Error cargando el CSV:", error);
             document.getElementById('loading-msg').innerHTML = "Ocurrió un error al cargar el inventario. Revisa el enlace del Google Sheet.";
         }
     }
 
     function procesarCSV(csvText) {
-        const rows = csvText.split(/\r?\n/);
+        // Mejor analizador de CSV que ignora saltos de línea erróneos dentro de celdas
+        const rows = parseCSVAdvanced(csvText);
         if (rows.length < 2) return;
         
         vestidosData = [];
         categoriasUnicas = new Set();
 
         for (let i = 1; i < rows.length; i++) {
-            if (!rows[i].trim()) continue;
+            const cols = rows[i];
             
-            const cols = parseCSVLine(rows[i]);
-            
-            if (cols.length >= 7 && cols[1] && cols[7]) {
+            // Asumiendo el orden: ID(0), Nombre(1), Categoría(2), Talla(3), Precio(4), Depósito(5), Descripción(6), URL(7), Color(8)
+            if (cols.length >= 8 && cols[1] && cols[7]) {
                 const categoria = cols[2] ? cols[2].trim() : 'Sin Categoría';
                 categoriasUnicas.add(categoria);
 
@@ -431,8 +465,9 @@
                     talla: cols[3] || 'N/A',
                     precio: cols[4] || 'Consultar',
                     deposito: cols[5] || 'Consultar',
-                    descripcion: cols[6] || '',
-                    url: cols[7].trim()
+                    descripcion: cols[6] ? cols[6].replace(/\n/g, ' ') : '', // Elimina saltos de línea en descripción
+                    url: cols[7].trim(),
+                    color: cols[8] || '' // Nueva columna Color
                 });
             }
         }
@@ -444,17 +479,21 @@
         renderCatalogo('Todas');
     }
 
-    function parseCSVLine(text) {
-        const re_value = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\s\S][^'\\]*)*)'|"([^"\\]*(?:\\[\s\S][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g;
-        let a = [];
-        text.replace(re_value, function(m0, m1, m2, m3) {
-            if (m1 !== undefined) a.push(m1.replace(/\\'/g, "'"));
-            else if (m2 !== undefined) a.push(m2.replace(/\\"/g, '"').replace(/""/g, '"'));
-            else if (m3 !== undefined) a.push(m3);
-            return '';
-        });
-        if (/,\s*$/.test(text)) a.push('');
-        return a;
+    // Analizador avanzado para evitar que saltos de línea accidentales en Excel rompan la tabla
+    function parseCSVAdvanced(text) {
+        let p = '', row = [''], ret = [row], i = 0, r = 0, s = !0, l;
+        for (l of text) {
+            if ('"' === l) {
+                if (s && l === p) row[i] += l;
+                s = !s;
+            } else if (',' === l && s) l = row[++i] = '';
+            else if ('\n' === l && s) {
+                if ('\r' === p) row[i] = row[i].slice(0, -1);
+                row = ret[++r] = [l = '']; i = 0;
+            } else row[i] += l;
+            p = l;
+        }
+        return ret;
     }
 
     function construirFiltros() {
@@ -504,13 +543,16 @@
                 const card = document.createElement('div');
                 card.className = 'item';
                 const nombreSeguro = vestido.nombre.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                const descSegura = vestido.descripcion.replace(/'/g, "\\'").replace(/"/g, "&quot;");
                 
                 const descHtml = vestido.descripcion ? `<p class="item-desc">${vestido.descripcion}</p>` : '';
+                const colorHtml = vestido.color ? `<span class="color-badge">${vestido.color}</span>` : '';
                 
                 card.innerHTML = `
                     <div>
-                        <div class="img-container" onclick="abrirLightbox(this, '${nombreSeguro}')">
+                        <div class="img-container" onclick="abrirLightbox(this, '${nombreSeguro}', '${descSegura}')">
                             <span class="category-badge">${vestido.talla}</span>
+                            ${colorHtml}
                             <span class="zoom-hint">🔍 Ver completo</span>
                             <img src="${vestido.url}" alt="${vestido.nombre}" onerror="this.src='https://via.placeholder.com/400x500/ffe6ea/d88ca8?text=Foto+no+encontrada'">
                         </div>
@@ -539,16 +581,19 @@
         renderCatalogo(categoria);
     }
 
-    function abrirLightbox(container, nombre) {
+    function abrirLightbox(container, nombre, descripcion) {
         const imgElement = container.querySelector('img');
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
         const lightboxCaption = document.getElementById('lightbox-caption');
+        const lightboxDesc = document.getElementById('lightbox-desc');
         const lightboxBtn = document.getElementById('lightbox-btn');
 
         lightboxImg.src = imgElement.src;
         lightboxImg.alt = nombre;
         lightboxCaption.textContent = nombre;
+        lightboxDesc.textContent = descripcion;
+        
         lightboxBtn.onclick = function(e) {
             e.stopPropagation();
             consultarVestido(nombre, imgElement.src);
