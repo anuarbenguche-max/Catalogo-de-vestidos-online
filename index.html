@@ -122,10 +122,17 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            cursor: zoom-in;
         }
 
-        .item img {
+        /* Ajuste para el embed de Imgur dentro del contenedor */
+        .img-container blockquote.imgur-embed-pub {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .item img.fallback-img {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -137,7 +144,7 @@
             z-index: 2;
         }
 
-        .item:hover img {
+        .item:hover img.fallback-img {
             transform: scale(1.04);
         }
 
@@ -153,19 +160,6 @@
             font-weight: 500;
             z-index: 3;
             letter-spacing: 0.5px;
-            pointer-events: none;
-        }
-
-        .zoom-hint {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background-color: rgba(0, 0, 0, 0.55);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.75em;
-            z-index: 3;
             pointer-events: none;
         }
 
@@ -234,68 +228,6 @@
         .btn-consultar:hover {
             background-color: #1ebe5d;
             transform: scale(1.03);
-        }
-
-        /* Visor de imagen en pantalla completa (Lightbox) */
-        .lightbox {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.88);
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .lightbox.active {
-            display: flex;
-        }
-
-        .lightbox-close {
-            position: absolute;
-            top: 18px;
-            right: 25px;
-            color: white;
-            font-size: 2.5em;
-            font-weight: bold;
-            cursor: pointer;
-            line-height: 1;
-            z-index: 1001;
-            background: rgba(255, 255, 255, 0.15);
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .lightbox-img {
-            max-width: 92%;
-            max-height: 75vh;
-            border-radius: 10px;
-            object-fit: contain;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-        }
-
-        .lightbox-caption {
-            color: white;
-            margin: 15px 0 12px;
-            font-size: 1.15em;
-            font-weight: 500;
-            text-align: center;
-        }
-
-        .lightbox .btn-consultar {
-            width: auto;
-            min-width: 200px;
-            padding: 12px 30px;
         }
 
         footer {
@@ -373,13 +305,6 @@
     </div>
 </div>
 
-<div id="lightbox" class="lightbox" onclick="cerrarLightbox(event)">
-    <span class="lightbox-close" onclick="cerrarLightbox(event)">&times;</span>
-    <img id="lightbox-img" class="lightbox-img" src="" alt="">
-    <p id="lightbox-caption" class="lightbox-caption"></p>
-    <button id="lightbox-btn" class="btn-consultar">📲 Consultar</button>
-</div>
-
 <footer>
     <h2>Noche & Día Dress Rental</h2>
     <p>Contáctanos por WhatsApp:</p>
@@ -397,30 +322,29 @@
     let vestidosData = [];
     let categoriasUnicas = [];
 
-    // Función para limpiar links de Imgur automáticamente
-    function cleanImgurUrl(url) {
-        if (!url) return '';
-        let cleanUrl = url.trim();
+    // Función para detectar y limpiar la entrada del Excel (Embed o URL)
+    function processImgurInput(input) {
+        if (!input) return '';
+        let cleanInput = input.trim();
         
-        // Si el enlace es de Imgur pero no termina en formato de imagen
-        if (cleanUrl.includes('imgur.com') && !cleanUrl.match(/\.(jpeg|jpg|gif|png)$/i)) {
-            // Extraer el código final (ej. de imgur.com/gallery/ves-001-xa0I6bZ saca xa0I6bZ)
-            // Maneja enlaces /a/, /gallery/ e incluso enlaces que tienen un nombre descriptivo seguido de un guión
-            const parts = cleanUrl.split('/');
-            let idPart = parts[parts.length - 1]; // Toma la última parte de la URL
-            
-            // Si la última parte tiene un guión (ej. ves-001-xa0I6bZ), tomar solo lo que está después del último guión
+        // Si es el código embed completo de Imgur
+        if (cleanInput.includes('<blockquote') && cleanInput.includes('imgur.com')) {
+            return { type: 'embed', content: cleanInput };
+        }
+        
+        // Si es un enlace normal
+        if (cleanInput.includes('imgur.com') && !cleanInput.match(/\.(jpeg|jpg|gif|png)$/i)) {
+            const parts = cleanInput.split('/');
+            let idPart = parts[parts.length - 1]; 
             if(idPart.includes('-')){
                 const idPieces = idPart.split('-');
                 idPart = idPieces[idPieces.length - 1];
             }
-            
             if (idPart) {
-                // Forzar el enlace directo con i.imgur.com y .jpeg
-                return `https://i.imgur.com/${idPart}.jpeg`;
+                return { type: 'image', content: `https://i.imgur.com/${idPart}.jpeg` };
             }
         }
-        return cleanUrl;
+        return { type: 'image', content: cleanInput };
     }
 
     async function cargarDatos() {
@@ -450,8 +374,7 @@
                 const categoria = cols[2] ? cols[2].trim() : 'Sin Categoría';
                 categoriasUnicas.add(categoria);
 
-                // Pasamos la URL por nuestro limpiador automático
-                const fixedUrl = cleanImgurUrl(cols[7]);
+                const media = processImgurInput(cols[7]);
 
                 vestidosData.push({
                     id: cols[0],
@@ -461,7 +384,8 @@
                     precio: cols[4] || 'Consultar',
                     deposito: cols[5] || 'Consultar',
                     descripcion: cols[6] || '',
-                    url: fixedUrl
+                    mediaType: media.type,
+                    mediaContent: media.content
                 });
             }
         }
@@ -536,12 +460,25 @@
                 
                 const descHtml = vestido.descripcion ? `<p class="item-desc">${vestido.descripcion}</p>` : '';
                 
+                let mediaHtml = '';
+                let linkConsulta = '';
+
+                // Si es un Embed de Imgur
+                if (vestido.mediaType === 'embed') {
+                    mediaHtml = vestido.mediaContent;
+                    linkConsulta = 'Ver foto en galería'; // Como es un embed, enviamos un texto generico al whatsapp
+                } 
+                // Si es un enlace de imagen normal
+                else {
+                    mediaHtml = `<img src="${vestido.mediaContent}" alt="${vestido.nombre}" class="fallback-img" onerror="this.src='https://via.placeholder.com/400x500/ffe6ea/d88ca8?text=Foto+no+encontrada'">`;
+                    linkConsulta = vestido.mediaContent;
+                }
+
                 card.innerHTML = `
                     <div>
-                        <div class="img-container" onclick="abrirLightbox(this, '${nombreSeguro}')">
+                        <div class="img-container">
                             <span class="category-badge">${vestido.talla}</span>
-                            <span class="zoom-hint">🔍 Ver completo</span>
-                            <img src="${vestido.url}" alt="${vestido.nombre}" onerror="this.src='https://via.placeholder.com/400x500/ffe6ea/d88ca8?text=Foto+no+encontrada'">
+                            ${mediaHtml}
                         </div>
                         <div class="item-info">
                             <p class="item-title">${vestido.nombre}</p>
@@ -550,7 +487,7 @@
                             <p class="item-meta deposit-text">Depósito: ${vestido.deposito}</p>
                         </div>
                     </div>
-                    <button class="btn-consultar" onclick="consultarVestido('${nombreSeguro}', '${vestido.url}')">
+                    <button class="btn-consultar" onclick="consultarVestido('${nombreSeguro}', '${linkConsulta}')">
                         📲 Consultar
                     </button>
                 `;
@@ -560,6 +497,17 @@
             section.appendChild(grid);
             catalogContent.appendChild(section);
         });
+
+        // Forzar a Imgur a cargar los embeds nuevos si se insertaron
+        if (window.imgurEmbed && window.imgurEmbed.tasks) {
+            window.imgurEmbed.tasks.create();
+        } else if (!document.getElementById('imgur-embed-script')) {
+            const script = document.createElement('script');
+            script.id = 'imgur-embed-script';
+            script.src = "//s.imgur.com/min/embed.js";
+            script.async = true;
+            document.body.appendChild(script);
+        }
     }
 
     function filtrarCategoria(categoria, btnElement) {
@@ -567,39 +515,6 @@
         btnElement.classList.add('active');
         renderCatalogo(categoria);
     }
-
-    function abrirLightbox(container, nombre) {
-        const imgElement = container.querySelector('img');
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImg = document.getElementById('lightbox-img');
-        const lightboxCaption = document.getElementById('lightbox-caption');
-        const lightboxBtn = document.getElementById('lightbox-btn');
-
-        lightboxImg.src = imgElement.src;
-        lightboxImg.alt = nombre;
-        lightboxCaption.textContent = nombre;
-        lightboxBtn.onclick = function(e) {
-            e.stopPropagation();
-            consultarVestido(nombre, imgElement.src);
-        };
-
-        lightbox.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function cerrarLightbox(event) {
-        if (event.target.id === 'lightbox' || event.target.classList.contains('lightbox-close')) {
-            document.getElementById('lightbox').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-    }
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            document.getElementById('lightbox').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-    });
 
     function consultarVestido(nombre, urlImagen) {
         const randomIndex = Math.floor(Math.random() * whatsappNumbers.length);
